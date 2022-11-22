@@ -34,58 +34,59 @@ class _RegisterViewState extends State<RegisterView> {
       appBar: AppBar(
         title: const Text('Register'),
       ),
-      body: FutureBuilder(
-        future: Firebase.initializeApp(
-          options: DefaultFirebaseOptions.currentPlatform,
-        ),
-        builder: (context, snapshot) {
-          switch (snapshot.connectionState) {
-            case ConnectionState.done:
-              return Column(
-                children: [
-                  TextField(
-                    controller: _email,
-                    keyboardType: TextInputType.emailAddress,
-                    enableSuggestions: false,
-                    autocorrect: false,
-                    decoration: const InputDecoration(
-                        hintText: 'Enter your email here'),
-                  ),
-                  TextField(
-                    controller: _password,
-                    enableSuggestions: false,
-                    obscureText: true,
-                    autocorrect: false,
-                    decoration:
-                        const InputDecoration(hintText: 'Enter your password'),
-                  ),
-                  TextButton(
-                      onPressed: () async {
-                        late final email = _email.text;
-                        late final password = _password.text;
+      body: Column(
+        children: [
+          TextField(
+            controller: _email,
+            keyboardType: TextInputType.emailAddress,
+            enableSuggestions: false,
+            autocorrect: false,
+            decoration:
+                const InputDecoration(hintText: 'Enter your email here'),
+          ),
+          TextField(
+            controller: _password,
+            enableSuggestions: false,
+            obscureText: true,
+            autocorrect: false,
+            decoration: const InputDecoration(hintText: 'Enter your password'),
+          ),
+          TextButton(
+            onPressed: () async {
+              late final email = _email.text;
+              late final password = _password.text;
 
-                        try {
-                          final userCredentials = await FirebaseAuth.instance
-                              .createUserWithEmailAndPassword(
-                                  email: email, password: password);
-                          print(userCredentials);
-                        } on FirebaseAuthException catch (e) {
-                          if (e.code == 'weak-password') {
-                            print('weak password');
-                          } else if (e.code == 'email-already-in-use') {
-                            print('Email is already in use');
-                          } else if (e.code == 'invalid-email') {
-                            print('invalid email');
-                          }
-                        }
-                      },
-                      child: const Text('Register'))
-                ],
+              try {
+                final userCredentials = await FirebaseAuth.instance
+                    .createUserWithEmailAndPassword(
+                        email: email, password: password);
+                print(userCredentials);
+              } on FirebaseAuthException catch (e) {
+                if (e.code == 'weak-password') {
+                  print('weak password');
+                } else if (e.code == 'email-already-in-use') {
+                  print('Email is already in use');
+                } else if (e.code == 'invalid-email') {
+                  print('invalid email');
+                }
+              }
+            },
+            child: const Text(
+              'Register',
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pushNamedAndRemoveUntil(
+                '/login/',
+                (route) => false,
               );
-            default:
-              return const Text('loading');
-          }
-        },
+            },
+            child: const Text(
+              'Already registered? Login here!',
+            ),
+          )
+        ],
       ),
     );
   }

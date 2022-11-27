@@ -20,6 +20,7 @@ void main() {
       routes: {
         '/login/': (context) => const LoginView(),
         '/register/': (context) => const RegisterView(),
+        '/notes/': (context) => const NotesView()
       },
     ),
   );
@@ -41,14 +42,12 @@ class HomePage extends StatelessWidget {
             if (user != null) {
               if (user.emailVerified) {
                 return const NotesView();
-                print('email is verified');
               } else {
                 return const VerifyEmailView();
               }
             } else {
               return const LoginView();
             }
-            return const Text('done');
           default:
             return const CircularProgressIndicator();
         }

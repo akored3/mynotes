@@ -68,7 +68,7 @@ class _RegisterViewState extends State<RegisterView> {
                 if (e.code == 'weak-password') {
                   showErrorDialog(
                     context,
-                    'WWeak password',
+                    'Weak password',
                   );
                 } else if (e.code == 'email-already-in-use') {
                   showErrorDialog(

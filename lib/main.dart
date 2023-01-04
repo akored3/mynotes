@@ -10,22 +10,20 @@ import 'dart:developer' as devtools show log;
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(
-    MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const HomePage(),
-      routes: {
-        loginRoute: (context) => const LoginView(),
-        registerRoute: (context) => const RegisterView(),
-        notesRoute: (context) => const NotesView(),
-        verifyEmailRoute: (context) => const VerifyEmailView(),
-      },
+  runApp(MaterialApp(
+    debugShowCheckedModeBanner: false,
+    title: 'Flutter Demo',
+    theme: ThemeData(
+      primarySwatch: Colors.blue,
     ),
-  );
+    home: const HomePage(),
+    routes: {
+      loginRoute: (context) => const LoginView(),
+      registerRoute: (context) => const RegisterView(),
+      notesRoute: (context) => const NotesView(),
+      verifyEmailRoute: (context) => const VerifyEmailView(),
+    },
+  ));
 }
 
 class HomePage extends StatelessWidget {
@@ -80,7 +78,6 @@ class _NotesViewState extends State<NotesView> {
             onSelected: (value) async {
               switch (value) {
                 case MenuAction.logout:
-                  // TODO: Handle this case.
                   final shouldLogOut = await showLogOutDialog(context);
                   if (shouldLogOut) {
                     FirebaseAuth.instance.signOut();

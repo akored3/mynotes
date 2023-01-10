@@ -1,9 +1,12 @@
 import 'package:mynotes/services/auth/auth_user.dart';
 
-//We also need an AuthProvider, to allow us the possibilities to add different types of providers, such as google , twitter, apple..e.t.c
+//We also need an AuthProvider, to allow us the possibilities to add different types of providers,such
+//as google , twitter, apple..e.t.c
 //So we're creating this AuthProvider in order to encapsulate other providers that we may add in the future
 
 abstract class AuthProvider {
+  Future<void> initialize();
+
   AuthUser? get currentUser;
   Future<AuthUser> login({
     required String email,

@@ -10,8 +10,10 @@ class NewNoteView extends StatefulWidget {
 }
 
 class _NewNoteViewState extends State<NewNoteView> {
+  //To avoid creation of a new note in the database when we hot restart
   DatabaseNote? _note;
   late final NoteService _noteService;
+  //we need a text editing controller to keep track of the text changes, as the user types
   late final TextEditingController _textController;
 
   @override
@@ -22,9 +24,6 @@ class _NewNoteViewState extends State<NewNoteView> {
   }
 
   Future<DatabaseNote> createNewNote() async {
-    //checking to see if we have created this note before inside the _note variable;
-    //if we have created it before we just return it !
-    //But if we haven't created it before ...we go to the note service and pull the createNote function! to create a new note for us of course
     final existingNote = _note;
     if (existingNote != null) {
       return existingNote;
@@ -35,7 +34,7 @@ class _NewNoteViewState extends State<NewNoteView> {
     return await _noteService.createNote(owner: owner);
   }
 
-  //Upon disposal, we need to delete the note if text is empty
+//Function to delete note if user press the back button without a text in the note
   void _deleteNoteIfTextIsEmpty() {
     final note = _note;
     if (_textController.text.isEmpty && note != null) {
@@ -43,7 +42,27 @@ class _NewNoteViewState extends State<NewNoteView> {
     }
   }
 
-  //Function to auto save as user types
+  @override
+  void dispose() {
+    _deleteNoteIfTextIsEmpty();
+    _saveNoteIfTextNotEmpty();
+    _textController.dispose();
+    super.dispose();
+  }
+
+  //Function to auto save note
+  void _saveNoteIfTextNotEmpty() async {
+    final note = _note;
+    final text = _textController.text;
+    if (text.isNotEmpty && note != null) {
+      await _noteService.updateNote(
+        note: note,
+        text: text,
+      );
+    }
+  }
+
+  //Function to save or update note upon text changes
   void _textControllerListener() async {
     final note = _note;
     if (note == null) {
@@ -56,67 +75,37 @@ class _NewNoteViewState extends State<NewNoteView> {
     );
   }
 
-  //Hooking up the text field changes to the listener
+  //I do not fully grab this concept
   void _setupTextControllerListener() {
     _textController.removeListener(_textControllerListener);
     _textController.addListener(_textControllerListener);
   }
 
-  //Function to automatically save note
-  // void _saveNoteIfTextNotEmpty() async {
-  //   final note = _note;
-  //   final text = _textController.text;
-  //   if (note != null && text.isNotEmpty) {
-  //     await _noteService.updateNote(
-  //       note: note,
-  //       text: text,
-  //     );
-  //   }
-  // }
-  void _saveNoteIfTextNotEmpty() async {
-    final note = _note;
-    final text = _textController.text;
-    if (note != null && text.isNotEmpty) {
-      await _noteService.updateNote(
-        note: note,
-        text: text,
-      );
-    }
-  }
-
-  @override
-  void dispose() {
-    _deleteNoteIfTextIsEmpty();
-    _saveNoteIfTextNotEmpty();
-    _textController.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('New Note'),
-        ),
-        body: FutureBuilder(
-          future: createNewNote(),
-          builder: (context, snapshot) {
-            switch (snapshot.connectionState) {
-              case ConnectionState.done:
-                _note = snapshot.data as DatabaseNote;
-                _setupTextControllerListener();
-                return TextField(
-                  controller: _textController,
-                  keyboardType: TextInputType.multiline,
-                  maxLines: null,
-                  decoration: const InputDecoration(
-                    hintText: 'Start typing your note',
-                  ),
-                );
-              default:
-                return const CircularProgressIndicator();
-            }
-          },
-        ));
+      appBar: AppBar(
+        title: const Text('Your Note'),
+      ),
+      body: FutureBuilder(
+        future: createNewNote(),
+        builder: (context, snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.done:
+              _note = snapshot.data as DatabaseNote;
+              _setupTextControllerListener();
+              return TextField(
+                controller: _textController,
+                keyboardType: TextInputType.multiline,
+                maxLines: null,
+                decoration:
+                    const InputDecoration(hintText: 'Start typing your note'),
+              );
+            default:
+              return const CircularProgressIndicator();
+          }
+        },
+      ),
+    );
   }
 }

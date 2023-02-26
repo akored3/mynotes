@@ -6,16 +6,21 @@ import 'package:mynotes/utilities/dialog/delete_dialog.dart';
 //Careful now, the list of note shouldn't have any connection with the NoteService
 
 //A typedef can be used to specify a function signature that we want specific functions to match
-typedef DeleteNoteCallBack = void Function(DatabaseNote note);
+typedef NoteCallBack = void Function(DatabaseNote note);
 
 class NotesListView extends StatelessWidget {
+  //Notes list requires a list of DatabseNote to render of course
   final List<DatabaseNote> notes;
-  final DeleteNoteCallBack onDeleteNote;
+
+  final NoteCallBack onDeleteNote;
+
+  final NoteCallBack onTap;
 
   const NotesListView({
     super.key,
     required this.notes,
     required this.onDeleteNote,
+    required this.onTap,
   });
 
   @override
@@ -25,6 +30,9 @@ class NotesListView extends StatelessWidget {
       itemBuilder: (context, index) {
         final note = notes[index];
         return ListTile(
+          onTap: () {
+            onTap(note);
+          },
           title: Text(
             note.text,
             maxLines: 1,
@@ -35,16 +43,14 @@ class NotesListView extends StatelessWidget {
             onPressed: () async {
               final shouldDelete = await showDeleteDialog(context);
               if (shouldDelete) {
+                //Then we call the onDeleteNote call back and pass the current note
                 onDeleteNote(note);
               }
             },
-            icon: const Icon(
-              Icons.delete,
-            ),
+            icon: const Icon(Icons.delete),
           ),
         );
       },
     );
-    ;
   }
 }

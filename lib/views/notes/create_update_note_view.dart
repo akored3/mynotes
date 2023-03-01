@@ -25,6 +25,8 @@ class _CreateUpdateNoteViewState extends State<CreateUpdateNoteView> {
   }
 
   Future<DatabaseNote> createOrGetExistingNote(BuildContext context) async {
+    //Reading our argument to check if it has a note
+    //You either have a note or you don't
     final widgetNote = context.getArgument<DatabaseNote>();
 
     if (widgetNote != null) {

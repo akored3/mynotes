@@ -29,18 +29,31 @@ class FirebaseCloudStorage {
   }
 
   //Function to create new notes
-  void createNewNote({required String ownerUserId}) async {
-    await notes.add({
+  Future<CloudNote> createNewNote({
+    required String ownerUserId,
+  }) async {
+    final document = await notes.add({
       ownerUserIdFieldName: ownerUserId,
       textFieldName: '',
     });
+//the document variable is a reference, in order to get the snapshot we need to issue the get method on it!
+    final fetchedNote = await document.get();
+    return CloudNote(
+      documentId: fetchedNote.id,
+      ownerUserId: ownerUserId,
+      text: '',
+    );
   }
 
   //Function to get all notes for a currentUser user
-  Stream<Iterable<CloudNote>> allNotes({required String ownerUserId}) =>
-      notes.snapshots().map((event) => event.docs
-          .map((doc) => CloudNote.fromSnapshot(doc))
-          .where((note) => note.ownerUserId == ownerUserId));
+  Stream<Iterable<CloudNote>> allNotes({
+    required String ownerUserId,
+  }) =>
+      notes.snapshots().map(
+            (event) => event.docs
+                .map((doc) => CloudNote.fromSnapshot(doc))
+                .where((note) => note.ownerUserId == ownerUserId),
+          );
 
   //Function to get notes by userId
   Future<Iterable<CloudNote>> getNotes({
@@ -53,23 +66,16 @@ class FirebaseCloudStorage {
             isEqualTo: ownerUserId,
           )
           .get()
+          //what's this then part?
           .then(
-            (value) => value.docs.map(
-              (doc) {
-                return CloudNote(
-                  documentId: doc.id,
-                  ownerUserId: doc.data()[ownerUserIdFieldName] as String,
-                  text: doc.data()[textFieldName] as String,
-                );
-              },
-            ),
+            (value) => value.docs.map((doc) => CloudNote.fromSnapshot(doc)),
           );
     } catch (e) {
       throw CouldNotGetAllNotesException();
     }
   }
 
-  //Making our FirebaseCloudStorage class a singleton
+  //Making the FirebaseCloudStorage class a singleton
   static final FirebaseCloudStorage _shared =
       FirebaseCloudStorage._sharedInstance();
   FirebaseCloudStorage._sharedInstance();

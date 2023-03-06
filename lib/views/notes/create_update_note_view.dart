@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mynotes/services/auth/auth_service.dart';
-import 'package:mynotes/services/auth/crud/notes_service.dart';
 import 'package:mynotes/utilities/generics/get_arguments.dart';
+import 'package:mynotes/services/cloud/cloud_note.dart';
+import 'package:mynotes/services/cloud/firebase_cloud_storage.dart';
 
 class CreateUpdateNoteView extends StatefulWidget {
   const CreateUpdateNoteView({super.key});
@@ -12,22 +13,22 @@ class CreateUpdateNoteView extends StatefulWidget {
 
 class _CreateUpdateNoteViewState extends State<CreateUpdateNoteView> {
   //To avoid creation of a new note in the database when we hot restart
-  DatabaseNote? _note;
-  late final NoteService _noteService;
+  CloudNote? _note;
+  late final FirebaseCloudStorage _noteService;
   //we need a text editing controller to keep track of the text changes, as the user types
   late final TextEditingController _textController;
 
   @override
   void initState() {
-    _noteService = NoteService();
+    _noteService = FirebaseCloudStorage();
     _textController = TextEditingController();
     super.initState();
   }
 
-  Future<DatabaseNote> createOrGetExistingNote(BuildContext context) async {
+  Future<CloudNote> createOrGetExistingNote(BuildContext context) async {
     //Reading our argument to check if it has a note
     //You either have a note or you don't
-    final widgetNote = context.getArgument<DatabaseNote>();
+    final widgetNote = context.getArgument<CloudNote>();
 
     if (widgetNote != null) {
       _note = widgetNote;
@@ -41,8 +42,8 @@ class _CreateUpdateNoteViewState extends State<CreateUpdateNoteView> {
     }
     final currentUser = AuthService.firebase().currentUser!;
     final email = currentUser.email;
-    final owner = await _noteService.getUser(email: email);
-    final newNote = await _noteService.createNote(owner: owner);
+    final userId = currentUser.id;
+    final newNote = await _noteService.createNewNote(ownerUserId: userId);
     _note = newNote;
     return newNote;
   }
@@ -51,7 +52,7 @@ class _CreateUpdateNoteViewState extends State<CreateUpdateNoteView> {
   void _deleteNoteIfTextIsEmpty() {
     final note = _note;
     if (_textController.text.isEmpty && note != null) {
-      _noteService.deleteNote(id: note.id);
+      _noteService.deleteNote(documentId: note.documentId);
     }
   }
 
@@ -69,8 +70,8 @@ class _CreateUpdateNoteViewState extends State<CreateUpdateNoteView> {
     final text = _textController.text;
     if (text.isNotEmpty && note != null) {
       await _noteService.updateNote(
-        note: note,
         text: text,
+        documentId: note.documentId,
       );
     }
   }
@@ -83,12 +84,11 @@ class _CreateUpdateNoteViewState extends State<CreateUpdateNoteView> {
     }
     final text = _textController.text;
     await _noteService.updateNote(
-      note: note,
       text: text,
+      documentId: note.documentId,
     );
   }
 
-  //I do not fully grab this concept
   void _setupTextControllerListener() {
     _textController.removeListener(_textControllerListener);
     _textController.addListener(_textControllerListener);

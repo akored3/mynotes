@@ -65,8 +65,9 @@ class FirebaseCloudStorage {
             ownerUserIdFieldName,
             isEqualTo: ownerUserId,
           )
+          //the get method is used to retrieve the documents that matches the query specified by the where() clause
           .get()
-          //what's this then part?
+          //the then method is used to transform the results of the get method
           .then(
             (value) => value.docs.map((doc) => CloudNote.fromSnapshot(doc)),
           );
@@ -76,6 +77,7 @@ class FirebaseCloudStorage {
   }
 
   //Making the FirebaseCloudStorage class a singleton
+
   static final FirebaseCloudStorage _shared =
       FirebaseCloudStorage._sharedInstance();
   FirebaseCloudStorage._sharedInstance();

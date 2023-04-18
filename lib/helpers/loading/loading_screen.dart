@@ -1,7 +1,6 @@
 // ignore_for_file: no_leading_underscores_for_local_identifiers
 
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:mynotes/helpers/loading/loading_screen_controller.dart';
 

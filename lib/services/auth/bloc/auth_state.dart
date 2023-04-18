@@ -28,6 +28,17 @@ class AuthStateRegistering extends AuthState {
   }) : super(isLoading: isLoading);
 }
 
+class AuthStateForgotPassword extends AuthState {
+  final Exception? exception;
+  final bool hasSentEmail;
+
+  const AuthStateForgotPassword({
+    required this.exception,
+    required this.hasSentEmail,
+    required bool isLoading,
+  }) : super(isLoading: isLoading);
+}
+
 //state of logged in, and what do we need when we log in ?
 //we need the current user; so we get this from our AuthUser class
 class AuthStateLoggedIn extends AuthState {
